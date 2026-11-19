@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f2f4f7">
+<title>智慧植物照護系統</title>
+<style>
+:root{--bg:#f2f4f7;--card:#fff;--text:#1d2330;--sub:#6b7280;--line:#e5e7eb;--green:#22a45d;--blue:#2f7fe0;--red:#e0453a;--amber:#e69a1c;--purple:#8b5cf6}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1318;--card:#1a2029;--text:#e8ecf2;--sub:#9aa3af;--line:#2a313c}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 2px 14px}
+header h1{font-size:19px;margin:0}
+.st{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--red)}.dot.on{background:var(--green)}
+#bleBtn{border:0;border-radius:18px;padding:7px 14px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;white-space:nowrap}
+#bleBtn.connected{background:var(--line);color:var(--text)}
+.msg{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:14px;display:flex;gap:10px;align-items:center}
+.msg b{font-size:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.k{font-size:13px;color:var(--sub)}
+.v{font-size:24px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+.v small{font-size:13px;color:var(--sub);font-weight:400}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--green);transition:width .4s}
+h2{font-size:14px;margin:22px 4px 8px;color:var(--sub);font-weight:600}
+.row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);gap:12px}
+.row:last-child{border:0}.row .t{font-size:15px}.row .d{font-size:12px;color:var(--sub);margin-top:2px}
+.sw{position:relative;width:50px;height:30px;flex:none;display:inline-block}.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:#c9ced6;border-radius:15px;transition:.2s}
+.sw span:before{content:"";position:absolute;width:26px;height:26px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw input:checked+span{background:var(--green)}.sw input:checked+span:before{transform:translateX(20px)}
+.sub{display:flex;gap:18px;margin-top:10px;padding-left:4px}
+.sub label{display:flex;align-items:center;gap:8px;font-size:14px}
+.sub .sw{transform:scale(.8)}
+.btn{width:100%;padding:12px;border:0;border-radius:12px;background:var(--blue);color:#fff;font-size:15px;font-weight:600;margin-top:10px}
+.btn:disabled{opacity:.5}
+.btn2{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:8px 10px;font-size:13px}
+.set label{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.set input{width:84px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);text-align:right;font-size:15px}
+.cal{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.hint{font-size:12px;color:var(--sub);line-height:1.7;margin-top:8px}
+.foot{font-size:12px;color:var(--sub);text-align:center;margin-top:22px;line-height:1.8}
+#overlay{position:fixed;inset:0;background:rgba(15,19,24,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+#overlay.hidden{display:none}
+#overlay .box{background:var(--card);border-radius:18px;padding:24px 20px;max-width:340px;width:100%;text-align:center}
+#overlay .box div{font-size:44px}
+#overlay h3{margin:8px 0 6px;font-size:18px}
+#overlay p{margin:0 0 6px;font-size:13px;color:var(--sub);line-height:1.7}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;max-width:90%;z-index:20}
+#toast.show{opacity:.92}
+</style></head><body>
+
+<div id="overlay"><div class="box">
+  <div>🌿</div>
+  <h3>智慧植物照護系統</h3>
+  <p>打開盆栽電源後，按下方按鈕並選擇「SmartPlanter」</p>
+  <button class="btn" id="overlayBtn">連線藍牙</button>
+  <p style="margin-top:12px">Android／電腦：Chrome 或 Edge<br>iPhone：請用「Bluefy」瀏覽器開啟本頁</p>
+</div></div>
+
+<div class="wrap">
+<header>
+  <h1>🌿 智慧植物照護</h1>
+  <div class="st"><span id="clock"></span><span class="dot" id="dot"></span><button id="bleBtn">連線藍牙</button></div>
+</header>
+
+<div class="msg"><b id="face">🌱</b><span id="mood">尚未連線</span></div>
+
+<div class="grid">
+  <div class="card"><div class="k">💧 土壤濕度</div><div class="v" id="soil">--</div><div class="bar"><i id="soilBar"></i></div></div>
+  <div class="card"><div class="k">🌡️ 環境溫度</div><div class="v" id="temp">--</div></div>
+  <div class="card"><div class="k">💦 環境濕度</div><div class="v" id="hum">--</div></div>
+  <div class="card"><div class="k">☀️ 環境光照</div><div class="v" id="lux">--</div><div class="bar"><i id="luxBar" style="background:var(--amber)"></i></div></div>
+</div>
+
+<h2>設備控制</h2>
+<div class="card">
+  <div class="row"><div><div class="t">🔄 自動模式</div><div class="d" id="autoD">--</div></div>
+    <label class="sw"><input type="checkbox" id="swAuto"><span></span></label></div>
+  <div class="row" id="rowPump"><div><div class="t">🚿 水幫浦</div><div class="d" id="pumpD">--</div></div>
+    <label class="sw"><input type="checkbox" id="swPump"><span></span></label></div>
+  <div class="row" style="display:block">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><div class="t">💡 植物補光燈</div><div class="d" id="lightD">--</div></div>
+      <label class="sw"><input type="checkbox" id="swLight"><span></span></label></div>
+    <div class="sub">
+      <label><span class="sw"><input type="checkbox" id="swLA"><span></span></span>黃光</label>
+      <label><span class="sw"><input type="checkbox" id="swLB"><span></span></span>白光</label>
+    </div></div>
+  <div class="row" id="rowFan"><div><div class="t">🌀 散熱風扇</div><div class="d" id="fanD">--</div></div>
+    <label class="sw"><input type="checkbox" id="swFan"><span></span></label></div>
+</div>
+<button class="btn" id="bWater">💧 立即澆水一次</button>
+
+<h2>養護參數</h2>
+<div class="card set">
+  <label>土壤濕度低於（%）就澆水<input type="number" id="soilDry" min="5" max="90"></label>
+  <label id="lPumpSec">每次澆水秒數<input type="number" id="pumpSec" min="1" max="30"></label>
+  <label id="lTempHigh">溫度高於（°C）開風扇<input type="number" id="tempHigh" min="15" max="45" step="0.5"></label>
+  <label>環境光低於（%）開始補光<input type="number" id="lightLow" min="0" max="100" step="5"></label>
+  <label>補光開始（時）<input type="number" id="lightStart" min="0" max="23"></label>
+  <label style="border:0">補光結束（時）<input type="number" id="lightEnd" min="1" max="24"></label>
+  <div class="hint" id="lvHint"></div>
+  <button class="btn" id="bSave" style="background:var(--green)">儲存設定</button>
+</div>
+
+<h2>感測器校正</h2>
+<div class="card">
+  <div class="hint" style="margin-top:0">土壤：金屬叉擦乾按「乾燥」，再把兩根叉泡進水裡一半按「濕潤」。<br>光照：用手遮住按「最暗」，手電筒照著按「最亮」。</div>
+  <div class="cal">
+    <button class="btn2" data-cal="7,0">🏜️ 土壤乾燥</button><button class="btn2" data-cal="7,1">💧 土壤濕潤</button>
+    <button class="btn2" data-cal="8,0">🌑 光照最暗</button><button class="btn2" data-cal="8,1">☀️ 光照最亮</button>
+  </div>
+  <button class="btn2" id="bBeep" style="width:100%;margin-top:8px">🔔 測試蜂鳴器</button>
+</div>
+
+<div class="foot" id="foot">藍牙未連線</div>
+</div>
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const BLE_SVC   = '5a7e0001-6c1d-4f2a-9b3e-8d4c2f1a0001';
+const BLE_STATE = '5a7e0002-6c1d-4f2a-9b3e-8d4c2f1a0001';
+const BLE_CFG   = '5a7e0003-6c1d-4f2a-9b3e-8d4c2f1a0001';
+const BLE_CMD   = '5a7e0004-6c1d-4f2a-9b3e-8d4c2f1a0001';
+let bleDevice = null, cmdChar = null, writeChain = Promise.resolve();
+let S = null, C = null, hold = 0, cfgLoaded = false;
+
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2600)}
+
+// ===== 解碼（格式見 SmartPlanter.ino 的「藍牙」段落） =====
+function decodeState(v) {
+  const f = v.getUint8(0), c = v.getUint8(1), pct = i => { const x = v.getUint8(i); return x === 255 ? null : x; };
+  const t10 = v.getInt16(3, true), ago = v.getUint16(13, true), hh = v.getUint8(15);
+  return {
+    auto: !!(f & 1), pump: !!(f & 2), fanOn: !!(f & 4), probing: !!(f & 8),
+    wifiOk: !!(f & 16), apMode: !!(f & 32), dry: !!(f & 64), okTemp: !!(f & 128),
+    hasPump: !!(c & 1), hasFan: !!(c & 2), ldrAnalog: !!(c & 4),
+    soil: pct(2), temp: t10 === 0x7FFF ? null : t10 / 10, hum: pct(5), lvl: pct(6), amb: pct(7),
+    lamp: v.getUint8(8), lampLevel: v.getUint8(9), fan: v.getUint8(10), pumpLeft: v.getUint8(11),
+    waterToday: v.getUint8(12), agoMin: ago === 0xFFFF ? -1 : ago,
+    time: hh === 255 ? '' : String(hh).padStart(2, '0') + ':' + String(v.getUint8(16)).padStart(2, '0')
+  };
+}
+function decodeCfg(v) {
+  return { soilDry: v.getUint8(0), tempHigh: v.getUint8(1) / 2, lightLow: v.getUint8(2), pumpSec: v.getUint8(3),
+           lightStart: v.getUint8(4), lightEnd: v.getUint8(5), ip: [6, 7, 8, 9].map(i => v.getUint8(i)).join('.') };
+}
+
+// ===== 畫面 =====
+const n = (v, d, u) => v == null ? '--' : v.toFixed(d) + (u ? '<small> ' + u + '</small>' : '');
+const ago = m => m < 0 ? '尚未澆水' : m < 1 ? '剛剛' : m < 60 ? m + ' 分鐘前' : Math.floor(m / 60) + ' 小時前';
+const show = (id, on) => { $(id).style.display = on ? '' : 'none'; };
+
+function render(s) {
+  S = s;
+  $('soil').innerHTML = n(s.soil, 0, '%');
+  $('soilBar').style.width = (s.soil || 0) + '%';
+  $('soilBar').style.background = s.dry ? 'var(--amber)' : 'var(--green)';
+  $('temp').innerHTML = n(s.temp, 1, '°C');
+  $('hum').innerHTML = n(s.hum, 0, '%');
+  $('lux').innerHTML = s.lvl == null ? '--' : (s.ldrAnalog ? n(s.lvl, 0, '%') : (s.lvl > 0 ? '明亮' : '昏暗'));
+  $('luxBar').style.width = (s.lvl || 0) + '%';
+  $('clock').textContent = s.time;
+
+  let f = '😊', m = '一切正常，植物狀態良好';
+  if (s.pump) { f = '🚿'; m = '正在澆水…'; }
+  else if (s.dry) { f = '🥵'; m = '土壤偏乾' + (s.hasPump && s.auto ? '，稍後自動澆水' : '，請幫植物澆水 💧'); }
+  else if (C && s.temp != null && s.hasFan && s.temp >= C.tempHigh) { f = '🌡️'; m = '環境偏熱，風扇散熱中'; }
+  else if (s.lamp) { f = '🌤️'; m = '補光中，幫植物補充光照'; }
+  $('face').textContent = f; $('mood').textContent = m;
+
+  show('rowPump', s.hasPump); show('bWater', s.hasPump); show('lPumpSec', s.hasPump);
+  show('rowFan', s.hasFan); show('lTempHigh', s.hasFan);
+  if (Date.now() > hold) {
+    $('swAuto').checked = s.auto; $('swPump').checked = s.pump; $('swFan').checked = s.fanOn;
+    $('swLight').checked = s.lamp > 0; $('swLA').checked = !!(s.lamp & 1); $('swLB').checked = !!(s.lamp & 2);
+  }
+  $('autoD').textContent = s.auto ? '依感測值自動控制' : '手動控制中';
+  $('pumpD').textContent = s.pump ? '運轉中，剩 ' + s.pumpLeft + ' 秒' : '今日 ' + s.waterToday + ' 次・' + ago(s.agoMin);
+  const LV = ['', '微暗→', '偏暗→', '很暗→'];
+  $('lightD').textContent = s.probing ? '暫時關燈量測環境光…'
+    : (s.auto && s.lampLevel > 0 && s.lampLevel < 4 ? LV[s.lampLevel] : '')
+    + (s.lamp === 3 ? '黃光＋白光' : s.lamp === 1 ? '黃光' : s.lamp === 2 ? '白光' : '關閉');
+  $('fanD').textContent = s.fanOn ? '運轉中' : '關閉';
+  $('bWater').disabled = s.pump;
+  renderFoot();
+}
+function renderCfg(c) {
+  C = c;
+  if (!cfgLoaded) { for (const k of ['soilDry', 'pumpSec', 'tempHigh', 'lightLow', 'lightStart', 'lightEnd']) $(k).value = c[k]; cfgLoaded = true; }
+  const t = +$('lightLow').value || c.lightLow;
+  $('lvHint').innerHTML = '自動補光顏色：' + Math.round(t * 2 / 3) + '~' + t + '% 黃光、' + Math.round(t / 3) + '~' + Math.round(t * 2 / 3) + '% 白光、&lt;' + Math.round(t / 3) + '% 黃＋白';
+  renderFoot();
+}
+function renderFoot() {
+  if (!S) return;
+  const ip = C && C.ip !== '0.0.0.0' ? C.ip : '';
+  $('foot').innerHTML = '藍牙已連線・SmartPlanter<br>Wi-Fi：' + (S.wifiOk ? '已連線' + (ip ? '（http://' + ip + '）' : '') : S.apMode ? '熱點模式 SmartPlanter' : '未連線')
+    + '　溫濕度感測 ' + (S.okTemp ? '✅' : '❌');
+}
+function setOnline(on) { $('dot').className = on ? 'dot on' : 'dot'; }
+
+// ===== 藍牙連線 =====
+function setBleUi(connected, text) {
+  $('bleBtn').textContent = connected ? '中斷連線' : '連線藍牙';
+  $('bleBtn').classList.toggle('connected', connected);
+  $('overlay').classList.toggle('hidden', connected || !!window.__mock);
+  if (!connected) { $('foot').textContent = text || '藍牙未連線'; $('mood').textContent = text || '尚未連線'; }
+}
+
+async function connectGatt() {
+  const server = await bleDevice.gatt.connect();
+  const svc = await server.getPrimaryService(BLE_SVC);
+  const stateChar = await svc.getCharacteristic(BLE_STATE);
+  const cfgChar = await svc.getCharacteristic(BLE_CFG);
+  cmdChar = await svc.getCharacteristic(BLE_CMD);
+  stateChar.addEventListener('characteristicvaluechanged', e => { render(decodeState(e.target.value)); setOnline(true); });
+  cfgChar.addEventListener('characteristicvaluechanged', e => renderCfg(decodeCfg(e.target.value)));
+  await stateChar.startNotifications();
+  await cfgChar.startNotifications();
+  renderCfg(decodeCfg(await cfgChar.readValue()));
+  render(decodeState(await stateChar.readValue()));
+  setOnline(true);
+  setBleUi(true);
+}
+
+async function connectBLE() {
+  if (!navigator.bluetooth) {
+    alert('這個瀏覽器不支援藍牙。\n請用電腦或 Android 的 Chrome / Edge；iPhone 請安裝 Bluefy 瀏覽器開啟。');
+    return;
+  }
+  try {
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [BLE_SVC] }, { name: 'SmartPlanter' }],
+      optionalServices: [BLE_SVC]
+    });
+    bleDevice.addEventListener('gattserverdisconnected', onBleDisconnect);
+    setBleUi(false, '連線中…');
+    await connectGatt();
+  } catch (e) {
+    if (e.name !== 'NotFoundError') alert('藍牙連線失敗：' + e.message);
+    setBleUi(false);
+  }
+}
+
+// 斷線後自動重連（例如板子重開機）
+async function onBleDisconnect() {
+  cmdChar = null;
+  setOnline(false);
+  setBleUi(false, '連線中斷，重新連線中…');
+  for (let i = 0; i < 5 && bleDevice; i++) {
+    try {
+      await new Promise(r => setTimeout(r, 1500));
+      if (!bleDevice) return;
+      await connectGatt();
+      return;
+    } catch (e) {}
+  }
+  setBleUi(false);
+}
+
+$('bleBtn').onclick = () => {
+  if (bleDevice && bleDevice.gatt.connected) {
+    const d = bleDevice; bleDevice = null; d.gatt.disconnect(); setOnline(false); setBleUi(false);
+  } else connectBLE();
+};
+$('overlayBtn').onclick = connectBLE;
+
+// ===== 指令（第 1 byte 指令碼＋參數） =====
+function send(bytes) {
+  hold = Date.now() + 1500;
+  if (window.__mock) { window.__mock.apply(bytes); return; }
+  if (!cmdChar) { toast('藍牙未連線'); return; }
+  // Web Bluetooth 同時只能進行一個寫入，排隊送出
+  writeChain = writeChain.then(() => cmdChar && cmdChar.writeValue(new Uint8Array(bytes))).catch(() => toast('指令送出失敗'));
+}
+const lampMask = () => ($('swLA').checked ? 1 : 0) | ($('swLB').checked ? 2 : 0);
+$('swAuto').onchange = e => send([0x01, e.target.checked ? 1 : 0]);
+$('swPump').onchange = e => send([0x03, e.target.checked ? (S && !S.auto ? 15 : (C ? C.pumpSec : 5)) : 0]);
+$('swLight').onchange = e => send([0x02, e.target.checked ? 3 : 0]);
+$('swLA').onchange = () => send([0x02, lampMask()]);
+$('swLB').onchange = () => send([0x02, lampMask()]);
+$('swFan').onchange = e => send([0x04, e.target.checked ? 1 : 0]);
+$('bWater').onclick = () => send([0x03, C ? C.pumpSec : 5]);
+$('bBeep').onclick = () => send([0x06]);
+document.querySelectorAll('[data-cal]').forEach(b => b.onclick = () => {
+  const [op, arg] = b.dataset.cal.split(',').map(Number);
+  send([op, arg]); toast('已記錄「' + b.textContent.trim().slice(2) + '」');
+});
+$('lightLow').oninput = () => C && renderCfg(C);
+$('bSave').onclick = () => {
+  const g = id => +$(id).value;
+  send([0x05, g('soilDry'), Math.round(g('tempHigh') * 2), g('lightLow'), g('pumpSec'), g('lightStart'), g('lightEnd')]);
+  cfgLoaded = false; toast('已儲存 ✅');
+};
+
+setBleUi(false);
+
+// 預覽用：注入模擬資料時不需要藍牙
+if (window.__mock) {
+  renderCfg(window.__mock.cfg());
+  setInterval(() => { render(window.__mock.tick()); setOnline(true); }, 500);
+}
+</script>
+</body>
+</html>
